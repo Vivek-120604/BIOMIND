@@ -2,9 +2,21 @@
 
 from __future__ import annotations
 
+import os
+
 import gradio as gr
 
 from app import chain, fetcher, indexer
+
+
+def _resolve_server_port(default: int = 7860) -> int:
+    """Resolve the runtime port from environment variables used by Spaces/Gradio."""
+
+    raw_port = os.getenv("PORT") or os.getenv("GRADIO_SERVER_PORT") or str(default)
+    try:
+        return int(raw_port)
+    except ValueError:
+        return default
 
 
 def search_ui(query: str, max_results: int) -> tuple[list[list[str]], str]:
@@ -156,4 +168,4 @@ with gr.Blocks(title="BioMind — Biomedical Research Assistant") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    demo.launch(server_name="0.0.0.0", server_port=_resolve_server_port(), share=False)

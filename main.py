@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 from pathlib import Path
 
 
@@ -16,7 +17,13 @@ def main() -> None:
 
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    module.demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    raw_port = os.getenv("PORT") or os.getenv("GRADIO_SERVER_PORT") or "7860"
+    try:
+        server_port = int(raw_port)
+    except ValueError:
+        server_port = 7860
+
+    module.demo.launch(server_name="0.0.0.0", server_port=server_port, share=False)
 
 
 if __name__ == "__main__":
