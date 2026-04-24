@@ -12,5 +12,5 @@ WORKDIR /app
 COPY --chown=user:user . /app
 RUN mkdir -p /tmp/matplotlib && uv sync --frozen
 
-EXPOSE 7860
-CMD ["uv", "run", "python", "main.py"]
+EXPOSE 8501
+CMD ["uv", "run", "streamlit", "run", "app_streamlit.py", "--server.port=8501", "--server.address=0.0.0.0"]
