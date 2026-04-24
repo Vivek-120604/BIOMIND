@@ -31,14 +31,14 @@ Claude Web / remote agent → HTTP/SSE MCP service → BioMind core
 | Retrieval | rank-bm25 | Build a vectorless BM25 index over titles and abstracts |
 | LLM orchestration | LangChain + Groq | Generate grounded answers with cited sources |
 | Backend API | FastAPI | Serve search, question-answering, and index status endpoints |
-| Frontend | Gradio | Provide a simple research workflow UI |
+| Frontend | Streamlit | Provide a lightweight, interactive research workflow UI |
 | Agent integration | MCP Python SDK | Expose BioMind as tools for local stdio and remote HTTP/SSE agents |
 | Runtime | uv + Python 3.11 | Manage dependencies, locking, and execution |
 | Deployment | Docker + uv | Containerize the Space UI and the separate MCP service with the same resolver |
 
 ## Getting Started
 
-### Using uv
+### Running the Streamlit UI
 ```bash
 git clone https://github.com/yourusername/BioMind
 cd BioMind
@@ -46,10 +46,17 @@ uv sync
 cp .env.example .env   # add your GROQ_API_KEY
 uv run python main.py
 ```
+Then open http://localhost:8501 in your browser.
+
+### Running the FastAPI backend
+```bash
+uv run python -m uvicorn app.api:app --host 0.0.0.0 --port 8000
+```
+Then access the API docs at http://localhost:8000/docs
 
 ### Running the remote MCP service
 ```bash
-uv run python mcp_server/http_main.py
+uv run python -m mcp_server.http_main
 ```
 
 ### Exporting requirements.txt for environments that require it
