@@ -2,42 +2,18 @@
 
 from __future__ import annotations
 
-import os
-
 import gradio as gr
-import httpx
 
-BASE_URL = os.getenv("BIOMIND_API_URL", "http://127.0.0.1:8000")
-
-
-def _post_json(path: str, payload: dict) -> dict:
-    """Send a POST request to the BioMind API backend and return the JSON response."""
-
-    with httpx.Client(timeout=60.0) as client:
-        response = client.post(f"{BASE_URL}{path}", json=payload)
-        response.raise_for_status()
-        return response.json()
-
-
-def _get_json(path: str) -> dict:
-    """Send a GET request to the BioMind API backend and return the JSON response."""
-
-    with httpx.Client(timeout=30.0) as client:
-        response = client.get(f"{BASE_URL}{path}")
-        response.raise_for_status()
-        return response.json()
+from app import chain, fetcher, indexer
 
 
 def search_ui(query: str, max_results: int) -> tuple[list[list[str]], str]:
-    """Search for papers through the FastAPI backend and format the results for Gradio."""
+    """Search for papers through the BioMind core functions and format them for Gradio."""
 
     if not query.strip():
         return [], "Enter a search query to fetch biomedical papers."
 
-    result = _post_json(
-        "/search",
-        {"query": query.strip(), "max_results": int(max_results)},
-    )
+    papers = fetcher.fetch_papers(query.strip(), max_results=int(max_results))
     rows = [
         [
             paper["title"],
@@ -45,10 +21,10 @@ def search_ui(query: str, max_results: int) -> tuple[list[list[str]], str]:
             paper["published"],
             paper["arxiv_id"],
         ]
-        for paper in result["papers"]
+        for paper in papers
     ]
     abstracts = []
-    for index, paper in enumerate(result["papers"], start=1):
+    for index, paper in enumerate(papers, start=1):
         abstracts.append(
             "\n".join(
                 [
@@ -76,22 +52,18 @@ def ask_ui(query: str, question: str, k: int) -> tuple[str, str, str]:
             "Index status unavailable.",
         )
 
-    result = _post_json(
-        "/ask",
-        {
-            "query": query.strip(),
-            "question": question.strip(),
-            "k": int(k),
-        },
+    result = chain.search_and_answer(
+        query=query.strip(),
+        question=question.strip(),
+        k=int(k),
     )
-    status = _get_json("/index/status")
     sources = "\n".join(
         f"- {source['title']} ({source['arxiv_id']})"
         for source in result["sources"]
     ) or "No sources available."
     status_text = (
-        f"Indexed papers: {status['indexed_papers']} | "
-        f"Cached papers: {status['cache_size']} | "
+        f"Indexed papers: {indexer.get_index_size()} | "
+        f"Cached papers: {len(fetcher.get_cached_papers())} | "
         f"Papers searched for answer: {result['papers_searched']}"
     )
     return result["answer"], sources, status_text

@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+import importlib.util
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+import gradio as gr
+from starlette.requests import Request
+from starlette.routing import Route
 
 from app import chain, fetcher, indexer
+from mcp.server.sse import SseServerTransport
+from mcp_server.core import server as mcp_server
 
 app = FastAPI(title="BioMind API", version="1.0.0")
 app.add_middleware(
@@ -16,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+_mcp_transport = SseServerTransport("/mcp/messages")
 
 
 class SearchRequest(BaseModel):
@@ -71,3 +81,64 @@ def get_index_status() -> dict:
         "cache_size": len(fetcher.get_cached_papers()),
     }
 
+
+@app.get("/health")
+def healthcheck() -> dict:
+    """Return a simple health response so deployments can check server readiness."""
+
+    return {"status": "ok"}
+
+
+@app.get("/mcp")
+def mcp_info() -> dict:
+    """Describe the public MCP endpoints exposed by this BioMind deployment."""
+
+    return {
+        "server": "biomind",
+        "transport": "sse",
+        "sse_endpoint": "/mcp/sse",
+        "message_endpoint": "/mcp/messages",
+    }
+
+
+async def mcp_sse(request: Request):
+    """Open a remote MCP SSE session so internet clients can call BioMind tools."""
+
+    async with _mcp_transport.connect_sse(
+        request.scope, request.receive, request._send
+    ) as (read_stream, write_stream):
+        await mcp_server.run(
+            read_stream,
+            write_stream,
+            mcp_server.create_initialization_options(),
+        )
+
+
+async def mcp_messages(request: Request):
+    """Receive JSON-RPC POST messages for an existing BioMind MCP SSE session."""
+
+    await _mcp_transport.handle_post_message(
+        request.scope, request.receive, request._send
+    )
+
+
+app.router.routes.append(Route("/mcp/sse", endpoint=mcp_sse, methods=["GET"]))
+app.router.routes.append(
+    Route("/mcp/messages", endpoint=mcp_messages, methods=["POST"])
+)
+
+
+def _load_gradio_demo():
+    """Load the root Gradio UI module and return the Blocks demo object."""
+
+    module_path = Path(__file__).resolve().parent.parent / "app.py"
+    spec = importlib.util.spec_from_file_location("biomind_ui", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Unable to load the BioMind Gradio UI module.")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.demo
+
+
+app = gr.mount_gradio_app(app, _load_gradio_demo(), path="/")
