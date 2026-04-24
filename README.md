@@ -11,17 +11,17 @@ pinned: false
 # BioMind turns live arXiv biomedical literature into grounded answers with exact-term BM25 retrieval.
 
 ## Overview
-BioMind is a biomedical research assistant that searches live arXiv papers, indexes them with BM25, and answers questions using a Groq-hosted LLM grounded in retrieved abstracts. It is built for researchers, students, and biotech builders who need fast paper discovery without relying on stale local corpora. BM25 is intentionally used instead of vector search because biomedical queries often depend on exact matches for drugs, gene symbols, pathways, and protein names where loose semantic retrieval can be unsafe. The project is portfolio-worthy because it combines live arXiv ingestion, vectorless RAG, a production-style FastAPI backend, a Gradio frontend, and both local and remote MCP server access for agent tool use.
+BioMind is a biomedical research assistant that searches live arXiv papers, indexes them with BM25, and answers questions using a Groq-hosted LLM grounded in retrieved abstracts. It is built for researchers, students, and biotech builders who need fast paper discovery without relying on stale local corpora. BM25 is intentionally used instead of vector search because biomedical queries often depend on exact matches for drugs, gene symbols, pathways, and protein names where loose semantic retrieval can be unsafe. The project is portfolio-worthy because it combines live arXiv ingestion, vectorless RAG, a Gradio frontend for a Hugging Face Space, a FastAPI backend for API access, and separate local plus remote MCP server modes for agent tool use.
 
 ## Why BM25 for Biomedical Research?
 Biomedical search often fails when semantic retrieval over-generalizes precise terminology. Exact identifiers such as drug names, gene IDs, and protein sequences need direct lexical matching so the system retrieves the right papers instead of merely related concepts. A search for `BRCA1` should return BRCA1 papers, not papers about vaguely similar cancer genetics topics that happen to live nearby in embedding space. BM25 makes that tradeoff explicit and predictable.
 
 ## Architecture
 ```text
-User → Gradio UI → FastAPI → arXiv API (live papers)
-                           → BM25 Indexer → Groq LLM → Answer
-AI Agent → Remote MCP (/mcp/sse, /mcp/messages) → search_papers / ask_biomind tools
-Claude Desktop / local client → stdio MCP server → same BioMind tools
+User → Hugging Face Space UI (Gradio) → BioMind core → arXiv API / BM25 / Groq
+REST Client → FastAPI API → BioMind core
+Claude Desktop / local client → stdio MCP server → BioMind core
+Claude Web / remote agent → HTTP/SSE MCP service → BioMind core
 ```
 
 ## Tech Stack
@@ -32,9 +32,9 @@ Claude Desktop / local client → stdio MCP server → same BioMind tools
 | LLM orchestration | LangChain + Groq | Generate grounded answers with cited sources |
 | Backend API | FastAPI | Serve search, question-answering, and index status endpoints |
 | Frontend | Gradio | Provide a simple research workflow UI |
-| Agent integration | MCP Python SDK | Expose BioMind as tools for external AI agents |
+| Agent integration | MCP Python SDK | Expose BioMind as tools for local stdio and remote HTTP/SSE agents |
 | Runtime | uv + Python 3.11 | Manage dependencies, locking, and execution |
-| Deployment | Docker + uv | Containerize the full application stack with the same resolver |
+| Deployment | Docker + uv | Containerize the Space UI and the separate MCP service with the same resolver |
 
 ## Getting Started
 
@@ -45,6 +45,11 @@ cd BioMind
 uv sync
 cp .env.example .env   # add your GROQ_API_KEY
 uv run python main.py
+```
+
+### Running the remote MCP service
+```bash
+uv run python mcp_server/http_main.py
 ```
 
 ### Exporting requirements.txt for environments that require it
@@ -171,6 +176,8 @@ uv export --format requirements-txt --no-hashes > requirements.txt
 
 ### Remote MCP Endpoints
 
+These endpoints are served by the separate remote MCP service, not by the Hugging Face UI Space.
+
 `GET /mcp`
 ```json
 {
@@ -207,6 +214,9 @@ BioMind/
 │   └── api.py
 ├── mcp_server/
 │   ├── __init__.py
+│   ├── core.py
+│   ├── http_app.py
+│   ├── http_main.py
 │   └── server.py
 ├── data/
 │   └── .gitkeep
@@ -218,6 +228,7 @@ BioMind/
 ├── requirements.txt
 ├── uv.lock
 ├── Dockerfile
+├── Dockerfile.mcp
 └── README.md
 ```
 

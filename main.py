@@ -1,16 +1,24 @@
-"""Entrypoint that runs the unified BioMind web app."""
+"""Entrypoint that runs the BioMind Gradio UI."""
 
 from __future__ import annotations
 
-import uvicorn
+import importlib.util
+from pathlib import Path
 
-from app import api
 
 def main() -> None:
-    """Run the single public BioMind server with UI, REST API, and MCP endpoints."""
+    """Run the Gradio UI on the public Spaces port."""
 
-    uvicorn.run(api.app, host="0.0.0.0", port=7860, log_level="info")
+    module_path = Path(__file__).with_name("app.py")
+    spec = importlib.util.spec_from_file_location("biomind_ui", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Unable to load the BioMind Gradio UI module.")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
 
 
 if __name__ == "__main__":
     main()
+
