@@ -10,8 +10,6 @@ from langchain_groq import ChatGroq
 
 from app import fetcher, indexer
 
-load_dotenv()
-
 SYSTEM_PROMPT = (
     "You are BioMind, an expert biomedical research assistant. "
     "Answer questions based strictly on the provided research papers. "
@@ -48,6 +46,7 @@ def _format_context(papers: list[dict]) -> str:
 def answer_question(question: str, papers: list[dict]) -> dict:
     """Answer a question using only the supplied papers as grounded context."""
 
+    load_dotenv()
     sources = [
         {"title": paper["title"], "arxiv_id": paper["arxiv_id"]}
         for paper in papers
