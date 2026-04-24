@@ -1,0 +1,20 @@
+{
+  "name": "biomind",
+  "version": "1.0.0",
+  "description": "BioMind MCP server for searching biomedical papers on arXiv and answering questions with BM25-grounded citations.",
+  "tools": [
+    {
+      "name": "search_papers",
+      "description": "Search arXiv for biomedical research papers on a topic. Returns titles, authors, abstracts and PDF links. Use this to find papers before asking questions."
+    },
+    {
+      "name": "ask_biomind",
+      "description": "Search arXiv for papers on query, then answer the specific question using BM25 retrieval over the fetched papers. Returns answer with citations. Best for specific scientific questions about drugs, genes, diseases, or research findings."
+    },
+    {
+      "name": "get_index_status",
+      "description": "Returns the current number of papers indexed in BM25 and cached. Use this to check if BioMind has papers loaded before asking questions."
+    }
+  ]
+}
+
