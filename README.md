@@ -1,3 +1,14 @@
+---
+title: BioMind - Live Biomedical Research Assistant
+emoji: 🧬
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: 4.44.1
+app_file: main.py
+python_version: "3.11"
+---
+
 # 🧬 **BioMind: Live Biomedical Research at Your Fingertips**
 
 Search live arXiv biomedical papers, index them with BM25, and get AI-powered answers grounded in real science — no hallucinations, no stale data.
@@ -8,7 +19,7 @@ Search live arXiv biomedical papers, index them with BM25, and get AI-powered an
 
 ## 🎯 Why BM25 for Biomedical Research?
 
-Biomedical search often fails when semantic retrieval over-generalizes precise terminology. Exact identifiers—such as drug names (e.g., *BRCA1*, *metformin*), gene IDs, protein sequences, and disease codes—require direct lexical matching to retrieve the right papers. A search for `BRCA1` should return papers specifically about BRCA1, not papers about vaguely similar cancer genetics topics that happen to live nearby in embedding space. BM25 makes that tradeoff explicit and predictable, ensuring researchers find exactly what they're looking for.
+Biomedical search often fails when semantic retrieval over-generalizes precise terminology. Exact identifiers—such as drug names (e.g., _BRCA1_, _metformin_), gene IDs, protein sequences, and disease codes—require direct lexical matching to retrieve the right papers. A search for `BRCA1` should return papers specifically about BRCA1, not papers about vaguely similar cancer genetics topics that happen to live nearby in embedding space. BM25 makes that tradeoff explicit and predictable, ensuring researchers find exactly what they're looking for.
 
 ## 🏗️ Architecture
 
@@ -56,16 +67,16 @@ This architecture ensures HF Spaces works correctly and local development is smo
 
 ## 💾 Tech Stack
 
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| Paper Ingestion | arXiv Python library | Fetch live biomedical and AI papers |
-| Retrieval | rank-bm25 | Vectorless BM25 index over titles + abstracts |
-| LLM Orchestration | LangChain + Groq | Generate grounded answers with citations |
-| Backend API | FastAPI | Serve /search, /ask, /status endpoints |
-| Frontend | Gradio | Interactive research workflow UI |
-| Agent Integration | MCP Python SDK | Expose BioMind as tools for Claude Desktop, agents |
-| Runtime | Python 3.11 | Fast, stable, widely supported |
-| Deployment | Docker + Python | Containerized for HF Spaces, cloud platforms |
+| Component         | Technology           | Purpose                                            |
+| ----------------- | -------------------- | -------------------------------------------------- |
+| Paper Ingestion   | arXiv Python library | Fetch live biomedical and AI papers                |
+| Retrieval         | rank-bm25            | Vectorless BM25 index over titles + abstracts      |
+| LLM Orchestration | LangChain + Groq     | Generate grounded answers with citations           |
+| Backend API       | FastAPI              | Serve /search, /ask, /status endpoints             |
+| Frontend          | Gradio               | Interactive research workflow UI                   |
+| Agent Integration | MCP Python SDK       | Expose BioMind as tools for Claude Desktop, agents |
+| Runtime           | Python 3.11          | Fast, stable, widely supported                     |
+| Deployment        | Docker + Python      | Containerized for HF Spaces, cloud platforms       |
 
 ## 🚀 Getting Started
 
@@ -114,17 +125,20 @@ Then open: **http://localhost:7860**
 ### Running Individual Components
 
 **FastAPI only** (useful for API testing):
+
 ```bash
 uv run python -m uvicorn app.api:app --host 0.0.0.0 --port 8000
 # Then visit: http://localhost:8000/docs
 ```
 
 **MCP Server** (for Claude Desktop integration):
+
 ```bash
 uv run python -m mcp_server.server
 ```
 
 Add this to `claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
@@ -142,9 +156,11 @@ Add this to `claude_desktop_config.json`:
 ### FastAPI Endpoints
 
 #### `POST /search`
+
 Search arXiv for papers.
 
 **Request:**
+
 ```json
 {
   "query": "CRISPR gene editing",
@@ -153,6 +169,7 @@ Search arXiv for papers.
 ```
 
 **Response:**
+
 ```json
 {
   "papers": [
@@ -171,9 +188,11 @@ Search arXiv for papers.
 ```
 
 #### `POST /ask`
+
 Search papers and answer a question.
 
 **Request:**
+
 ```json
 {
   "query": "CRISPR cancer treatment",
@@ -183,6 +202,7 @@ Search papers and answer a question.
 ```
 
 **Response:**
+
 ```json
 {
   "answer": "Based on recent papers, CRISPR shows promise in... [citation]",
@@ -199,9 +219,11 @@ Search papers and answer a question.
 ```
 
 #### `GET /status`
+
 Health check and index stats.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -221,6 +243,7 @@ When running the MCP server, these tools are available to Claude Desktop and AI 
 ## 🌐 Hugging Face Spaces Deployment
 
 1. **Push to GitHub:**
+
    ```bash
    git add .
    git commit -m "Initial BioMind commit"
