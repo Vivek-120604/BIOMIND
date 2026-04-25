@@ -1,0 +1,19 @@
+{
+  "name": "biomind",
+  "version": "1.0.0",
+  "description": "Biomedical research assistant — searches arXiv papers using BM25 and answers questions with Groq LLM.",
+  "tools": [
+    {
+      "name": "search_papers",
+      "description": "Search arXiv for biomedical research papers. Returns titles, authors, abstracts and PDF links."
+    },
+    {
+      "name": "ask_biomind",
+      "description": "Answer biomedical questions using BM25 retrieval over arXiv papers and Groq LLM."
+    },
+    {
+      "name": "get_status",
+      "description": "Get current BM25 index size and paper cache count."
+    }
+  ]
+}
