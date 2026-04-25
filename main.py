@@ -13,7 +13,7 @@ import time
 import uvicorn
 
 from app.api import app as fastapi_app
-from app import app as gradio_module
+from app import demo as gradio_demo
 
 
 def run_fastapi() -> None:
@@ -42,7 +42,7 @@ def main() -> None:
 
     # Start Gradio on main thread
     # This blocks until the Gradio server is stopped
-    gradio_module.demo.launch(
+    gradio_demo.launch(
         server_name="0.0.0.0",
         server_port=7860,
         show_error=True,
