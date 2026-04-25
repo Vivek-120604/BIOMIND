@@ -84,7 +84,7 @@ This architecture ensures HF Spaces works correctly and local development is smo
 
 ```bash
 # Clone and enter project
-git clone https://github.com/yourusername/BioMind
+git clone https://github.com/Vivek-120604/BIOMIND
 cd BioMind
 
 # Install dependencies with uv (fast)
@@ -103,7 +103,7 @@ Then open: **http://localhost:7860**
 
 ```bash
 # Clone and enter project
-git clone https://github.com/yourusername/BioMind
+git clone https://github.com/Vivek-120604/BIOMIND
 cd BioMind
 
 # Create virtual environment
