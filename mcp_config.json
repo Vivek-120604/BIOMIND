@@ -5,15 +5,63 @@
   "tools": [
     {
       "name": "search_papers",
-      "description": "Search arXiv for biomedical research papers. Returns titles, authors, abstracts and PDF links."
+      "description": "Search arXiv for biomedical research papers by query. Returns titles, authors, publication dates, abstracts, and PDF links.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query (e.g., 'BRCA1 mutations', 'metformin diabetes')"
+          },
+          "max_results": {
+            "type": "integer",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of papers to return"
+          }
+        },
+        "required": ["query"]
+      }
     },
     {
       "name": "ask_biomind",
-      "description": "Answer biomedical questions using BM25 retrieval over arXiv papers and Groq LLM."
+      "description": "Answer biomedical questions by searching arXiv papers and using BM25 retrieval with Groq LLM. Returns grounded answer with citations to source papers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query to fetch papers from arXiv (e.g., 'cancer immunotherapy')"
+          },
+          "question": {
+            "type": "string",
+            "description": "Specific biomedical question to answer (e.g., 'What are recent therapeutic approaches?')"
+          },
+          "k": {
+            "type": "integer",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of most relevant papers to use for answering"
+          }
+        },
+        "required": ["query", "question"]
+      }
     },
     {
       "name": "get_status",
-      "description": "Get current BM25 index size and paper cache count."
+      "description": "Returns current BioMind status: number of indexed papers in BM25 index and papers in cache.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     }
-  ]
+  ],
+  "mcpServerConfig": {
+    "command": "uv",
+    "args": ["run", "mcp_server/server.py"],
+    "description": "Start BioMind MCP server via uv"
+  }
 }

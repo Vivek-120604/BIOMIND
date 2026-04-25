@@ -240,6 +240,49 @@ When running the MCP server, these tools are available to Claude Desktop and AI 
 - **`ask_biomind(query, question, k)`** — Answer question over retrieved papers
 - **`get_status()`** — Return index and cache stats
 
+## 🤖 Claude Desktop Integration
+
+Use BioMind as a tool in **Claude Desktop** via MCP (Model Context Protocol).
+
+### Setup
+
+1. **Get your Claude Desktop config path:**
+   ```bash
+   # macOS / Linux
+   ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   
+   # Windows
+   %APPDATA%\Claude\claude_desktop_config.json
+   ```
+
+2. **Add BioMind to config:**
+   ```json
+   {
+     "mcpServers": {
+       "biomind": {
+         "command": "uv",
+         "args": ["run", "/path/to/Biomind/mcp_server/server.py"]
+       }
+     }
+   }
+   ```
+   *(Replace `/path/to/Biomind` with your actual BioMind directory path)*
+
+3. **Restart Claude Desktop**
+
+4. **Ask Claude to use BioMind:**
+   - Claude will now have access to BioMind tools
+   - Say: *"Search for papers on CRISPR gene therapy"* or *"Answer: what are common BRCA1 mutations?"*
+   - Claude will call BioMind, fetch live papers, and answer your question
+
+### Available MCP Tools
+
+| Tool | Input | Output |
+|------|-------|--------|
+| **search_papers** | `query`, `max_results` (1-50, default 10) | List of papers with titles, authors, abstracts, PDF links |
+| **ask_biomind** | `query`, `question`, `k` (1-20, default 5) | Grounded answer with citations to source papers |
+| **get_status** | (none) | Current index size and cache count |
+
 ## 🌐 Hugging Face Spaces Deployment
 
 1. **Push to GitHub:**
