@@ -324,7 +324,7 @@ Contributions welcome! Open an issue or PR for bugs, features, or improvements.
 
 ## 📧 Contact
 
-Questions? Open an issue on GitHub or reach out to the team.
+Questions? Open an issue on GitHub or reach out to me.
 
 ---
 
